@@ -1,0 +1,26 @@
+from flask import Flask, request
+
+app = Flask(__name__)
+
+VERIFY_TOKEN = "sociable2025_token"
+
+@app.route('/webhook', methods=['GET', 'POST'])
+def webhook():
+    if request.method == 'GET':
+        # Step 1: Facebook Verification Handshake
+        mode = request.args.get("hub.mode")
+        token = request.args.get("hub.verify_token")
+        challenge = request.args.get("hub.challenge")
+
+        if mode == "subscribe" and token == VERIFY_TOKEN:
+            print("✅ Webhook verified with Facebook!")
+            return challenge, 200
+        else:
+            print("❌ Webhook verification failed!")
+            return "Forbidden", 403
+
+    if request.method == 'POST':
+        # Step 2: Facebook sends messages/events here
+        data = request.json
+        print("📩 Webhook received data:", data)
+        return "EVENT_RECEIVED", 200
